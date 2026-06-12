@@ -4,8 +4,7 @@ import { migrate } from "./migrate.js";
 
 const DEFAULT_CHANNELS = [
   { name: "загальний", legacy: "general", description: "Загальні питання SAT та Postex" },
-  { name: "операції", legacy: "operations", description: "Операційні питання: відправлення, маршрути, склади" },
-  { name: "спірні-питання", legacy: "disputes", description: "Спірні питання та претензії" },
+  { name: "операції", legacy: "operations", description: "Робочий канал менеджерів: відправлення, маршрути, задачі" },
 ];
 
 export async function seed() {
