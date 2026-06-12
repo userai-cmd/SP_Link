@@ -442,8 +442,8 @@ button { font: inherit; }
   overflow: hidden;
 }
 
-.sp-chat-pane { flex: 1.6; }
-.sp-tasks-pane { flex: 1; min-width: 330px; }
+.sp-chat-pane { flex: 1; }
+.sp-tasks-pane { flex: 1; }
 
 .sp-pane-head {
   display: flex;
@@ -1061,8 +1061,6 @@ select.sp-input option { color: #e8eef9; background: #111827; }
 /* ——— Mobile ——— */
 .sp-burger-btn { display: none; }
 
-.sp-mobile-tabs { display: none; }
-
 .sp-sidebar-backdrop { display: none; }
 
 @media (max-width: 900px) {
@@ -1114,65 +1112,14 @@ select.sp-input option { color: #e8eef9; background: #111827; }
   .sat-clock, .sat-status-pill { display: none; }
 
   .sp-content {
-    padding: 10px 0 calc(64px + env(safe-area-inset-bottom));
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   }
 
   .sp-chat-pane, .sp-tasks-pane { flex: 1; min-width: 0; }
 
-  /* tabs switch panes */
-  .sp-content[data-mobile-tab="chat"] .sp-tasks-pane { display: none; }
-  .sp-content[data-mobile-tab="tasks"] .sp-chat-pane { display: none; }
-
   .sp-kanban {
     grid-template-columns: 1fr;
     overflow-y: auto;
-  }
-
-  .sp-mobile-tabs {
-    display: flex;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
-    gap: 8px;
-    background: linear-gradient(180deg, rgba(4, 11, 22, 0.9), rgba(2, 7, 15, 0.97));
-    border-top: 1px solid var(--sat-border);
-    backdrop-filter: blur(8px);
-  }
-
-  .sat-page[data-theme="soft"] .sp-mobile-tabs {
-    background: rgba(255, 255, 255, 0.94);
-  }
-
-  .sp-mobile-tab {
-    flex: 1;
-    padding: 9px 0;
-    border-radius: 12px;
-    border: 1px solid rgba(103, 181, 255, 0.14);
-    background: rgba(5, 14, 26, 0.54);
-    color: #d9eeff;
-    font-size: 0.78rem;
-    font-weight: 800;
-    cursor: pointer;
-  }
-
-  .sat-page[data-theme="soft"] .sp-mobile-tab {
-    color: #1a3654;
-    background: rgba(255, 255, 255, 0.75);
-    border-color: rgba(129, 171, 224, 0.35);
-  }
-
-  .sp-mobile-tab.active {
-    border-color: rgba(123, 207, 255, 0.44);
-    background: linear-gradient(180deg, rgba(16, 54, 100, 0.74), rgba(8, 24, 48, 0.82));
-    color: #fff;
-  }
-
-  .sat-page[data-theme="soft"] .sp-mobile-tab.active {
-    color: #0d213d;
-    background: linear-gradient(180deg, rgba(210, 230, 255, 0.95), rgba(230, 242, 255, 0.98));
   }
 }
 
@@ -1181,7 +1128,7 @@ select.sp-input option { color: #e8eef9; background: #111827; }
   position: fixed;
   z-index: 1500;
   left: 50%;
-  bottom: calc(84px + env(safe-area-inset-bottom));
+  bottom: calc(28px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   padding: 0.6rem 1.1rem;
   border-radius: 12px;

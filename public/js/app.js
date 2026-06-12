@@ -9,8 +9,7 @@ const state = {
   messages: [],
   tasks: [],
   users: [],
-  view: "chat", // chat | admin
-  mobileTab: "chat", // chat | tasks
+  view: "chat", // chat | tasks | admin
   wsLive: false,
   pendingFile: null, // { fileUrl, fileName }
 };
@@ -275,7 +274,7 @@ function renderApp() {
 
   const main = el("div", { class: "sat-main" }, renderTopbar(), renderContent());
 
-  page.append(el("div", { class: "sat-wrap" }, sidebar, main), backdrop, renderMobileTabs());
+  page.append(el("div", { class: "sat-wrap" }, sidebar, main), backdrop);
   app.append(page);
 
   renderMessagesList();
@@ -335,6 +334,24 @@ function renderSidebar() {
         : null,
     ),
     el("nav", { class: "sat-left-nav", "aria-label": "Канали" }, channelLinks),
+    el("div", { class: "sat-left-section" }, el("span", {}, "Робота")),
+    el(
+      "nav",
+      { class: "sat-left-nav" },
+      el(
+        "button",
+        {
+          class: state.view === "tasks" ? "sat-nav-link active" : "sat-nav-link",
+          type: "button",
+          onclick: () => {
+            state.view = "tasks";
+            renderApp();
+            closeSidebar();
+          },
+        },
+        "Задачі",
+      ),
+    ),
   ];
 
   if (state.user?.role === "admin") {
@@ -423,7 +440,13 @@ function renderTopbar() {
       el(
         "span",
         { class: "sat-top-name" },
-        state.view === "admin" ? "Адміністрування" : activeChannel ? activeChannel.name : "—",
+        state.view === "admin"
+          ? "Адміністрування"
+          : state.view === "tasks"
+            ? "Задачі"
+            : activeChannel
+              ? activeChannel.name
+              : "—",
       ),
     ),
     el(
@@ -485,37 +508,12 @@ function startClock() {
   clockInterval = setInterval(tick, 1000);
 }
 
-function renderMobileTabs() {
-  if (state.view !== "chat") return el("div");
-  const make = (id, label) =>
-    el(
-      "button",
-      {
-        class: state.mobileTab === id ? "sp-mobile-tab active" : "sp-mobile-tab",
-        type: "button",
-        onclick: (e) => {
-          state.mobileTab = id;
-          const content = document.querySelector(".sp-content");
-          if (content) content.dataset.mobileTab = id;
-          document.querySelectorAll(".sp-mobile-tab").forEach((b) => b.classList.remove("active"));
-          e.currentTarget.classList.add("active");
-        },
-      },
-      label,
-    );
-  return el("div", { class: "sp-mobile-tabs" }, make("chat", "💬 Чат"), make("tasks", "✓ Задачі"));
-}
-
 /* ———————————————— Content ———————————————— */
 
 function renderContent() {
   if (state.view === "admin") return renderAdminView();
-  return el(
-    "div",
-    { class: "sp-content", "data-mobile-tab": state.mobileTab },
-    renderChatPane(),
-    renderTasksPane(),
-  );
+  if (state.view === "tasks") return el("div", { class: "sp-content" }, renderTasksPane());
+  return el("div", { class: "sp-content" }, renderChatPane());
 }
 
 function renderChatPane() {
@@ -690,7 +688,7 @@ const STATUSES = [
 function renderTasksPane() {
   return el(
     "section",
-    { class: "sp-pane sp-tasks-pane" },
+    { class: "sp-pane sp-tasks-pane", style: "flex:1" },
     el(
       "div",
       { class: "sp-pane-head" },
@@ -899,6 +897,7 @@ function openTaskDialog({ task, fromMessage }) {
             if (fromMessage) body.messageId = fromMessage.id;
             await api("/tasks", { method: "POST", body });
             if (!state.wsLive) await reloadTasks();
+            toast("Задачу створено — дивись у розділі «Задачі»");
           }
           overlay.remove();
         } catch (err) {
