@@ -597,8 +597,79 @@ button { font: inherit; }
   padding: 24px;
 }
 
+/* mentions */
+.sp-mention {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #a5d8ff;
+  background: rgba(40, 167, 255, 0.16);
+  border: 1px solid rgba(116, 198, 255, 0.3);
+}
+
+.sp-mention-me {
+  color: #ffe15e;
+  background: rgba(255, 198, 0, 0.14);
+  border-color: rgba(255, 217, 74, 0.4);
+}
+
+.sat-page[data-theme="soft"] .sp-mention {
+  color: #0b4f8c;
+  background: rgba(220, 236, 255, 0.92);
+}
+
+.sat-page[data-theme="soft"] .sp-mention-me {
+  color: #92400e;
+  background: rgba(254, 243, 199, 0.95);
+  border-color: rgba(217, 119, 6, 0.4);
+}
+
+.sp-mention-list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 12px;
+  right: 12px;
+  max-width: 22rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(103, 181, 255, 0.3);
+  background: rgba(3, 10, 22, 0.97);
+  box-shadow: 0 14px 30px rgba(2, 7, 15, 0.5);
+}
+
+.sat-page[data-theme="soft"] .sp-mention-list {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(129, 171, 224, 0.4);
+}
+
+.sp-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sat-text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sp-mention-item:hover,
+.sp-mention-item:focus {
+  background: rgba(120, 174, 255, 0.16);
+}
+
 /* composer */
 .sp-composer {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 8px;

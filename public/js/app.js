@@ -79,6 +79,44 @@ function isImage(url) {
   return /\.(png|jpe?g|gif|webp|heic|avif)$/i.test(url || "");
 }
 
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Розбиває текст повідомлення на вузли, підсвічуючи @теги користувачів. */
+function renderMessageText(text) {
+  const names = state.users
+    .map((u) => u.displayName)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  if (names.length === 0) return [text];
+
+  const re = new RegExp(`@(${names.map(escapeRegex).join("|")})`, "gu");
+  const nodes = [];
+  let last = 0;
+  for (const match of text.matchAll(re)) {
+    if (match.index > last) nodes.push(text.slice(last, match.index));
+    const isMe = match[1] === state.user.displayName;
+    nodes.push(
+      el("span", { class: isMe ? "sp-mention sp-mention-me" : "sp-mention" }, match[0]),
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
+/** Перший @тегнутий користувач у тексті (для автопризначення задачі). */
+function firstMentionedUser(text) {
+  if (!text) return null;
+  return (
+    state.users
+      .filter((u) => u.displayName && text.includes(`@${u.displayName}`))
+      .sort((a, b) => text.indexOf(`@${a.displayName}`) - text.indexOf(`@${b.displayName}`))[0] ||
+    null
+  );
+}
+
 let toastTimer = null;
 function toast(text) {
   let node = document.querySelector(".sp-toast");
@@ -546,14 +584,73 @@ function renderChatPane() {
     placeholder: activeChannel ? `Повідомлення у «${activeChannel.name}»` : "Повідомлення…",
     rows: 1,
     onkeydown: (e) => {
+      if (e.key === "Escape") hideMentionList();
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
+        const list = document.querySelector(".sp-mention-list");
+        if (list && list.firstChild) {
+          list.firstChild.click();
+          return;
+        }
         sendMessage();
       }
     },
+    oninput: () => updateMentionList(),
   });
 
+  /* @-теги: показуємо список користувачів, коли перед курсором є "@..." */
+  function mentionQuery() {
+    const upToCaret = textarea.value.slice(0, textarea.selectionStart);
+    const match = upToCaret.match(/(^|\s)@([^\s@]*)$/u);
+    return match ? match[2] : null;
+  }
+
+  function hideMentionList() {
+    document.querySelector(".sp-mention-list")?.remove();
+  }
+
+  function updateMentionList() {
+    const query = mentionQuery();
+    hideMentionList();
+    if (query === null) return;
+
+    const q = query.toLocaleLowerCase("uk-UA");
+    const candidates = state.users
+      .filter((u) => u.isActive && u.id !== state.user.id)
+      .filter((u) => !q || u.displayName.toLocaleLowerCase("uk-UA").includes(q))
+      .slice(0, 6);
+    if (candidates.length === 0) return;
+
+    const list = el(
+      "div",
+      { class: "sp-mention-list" },
+      candidates.map((u) =>
+        el(
+          "button",
+          {
+            class: "sp-mention-item",
+            type: "button",
+            onclick: () => {
+              const upToCaret = textarea.value.slice(0, textarea.selectionStart);
+              const rest = textarea.value.slice(textarea.selectionStart);
+              const replaced = upToCaret.replace(/@[^\s@]*$/u, `@${u.displayName} `);
+              textarea.value = replaced + rest;
+              textarea.focus();
+              textarea.selectionStart = textarea.selectionEnd = replaced.length;
+              hideMentionList();
+            },
+          },
+          el("span", { class: "sp-msg-avatar", "data-company": u.companyType, style: "width:1.5rem;height:1.5rem;font-size:0.65rem;border-radius:8px;" }, initialOf(u.displayName)),
+          el("span", {}, u.displayName),
+          el("span", { class: "muted", style: "font-size:0.68rem;" }, u.companyType),
+        ),
+      ),
+    );
+    document.querySelector(".sp-composer")?.prepend(list);
+  }
+
   async function sendMessage() {
+    hideMentionList();
     const text = textarea.value.trim();
     if (!text && !state.pendingFile) return;
     textarea.value = "";
@@ -654,7 +751,7 @@ function renderMessagesList() {
             el("span", { class: "sp-company-chip", "data-company": m.authorCompany }, m.authorCompany),
             el("span", { class: "sp-msg-time" }, fmtTime(m.createdAt)),
           ),
-          m.messageText ? el("p", { class: "sp-msg-text" }, m.messageText) : null,
+          m.messageText ? el("p", { class: "sp-msg-text" }, renderMessageText(m.messageText)) : null,
           fileBlock,
           el(
             "div",
@@ -873,6 +970,8 @@ function userOptions(selectedId) {
 function openTaskDialog({ task, fromMessage }) {
   const isEdit = Boolean(task);
   const error = el("p", { class: "sp-error", style: "display:none" });
+  const mentionedUser = fromMessage ? firstMentionedUser(fromMessage.messageText) : null;
+  const defaultAssignee = task?.assignedTo ?? mentionedUser?.id;
 
   const form = el(
     "form",
@@ -933,7 +1032,7 @@ function openTaskDialog({ task, fromMessage }) {
       "label",
       { class: "sp-field" },
       el("span", {}, "Виконавець"),
-      el("select", { class: "sp-input", name: "assignedTo" }, userOptions(task?.assignedTo)),
+      el("select", { class: "sp-input", name: "assignedTo" }, userOptions(defaultAssignee)),
     ),
     el(
       "label",
