@@ -447,7 +447,7 @@ function renderTopbar() {
             renderThemeButtons();
           },
         },
-        state.theme === "dark" ? "Soft" : "Dark",
+        state.theme === "dark" ? "Світла" : "Темна",
       ),
       profileMenu,
       el(
@@ -462,7 +462,7 @@ function renderTopbar() {
 
 function renderThemeButtons() {
   const btn = document.querySelector(".sat-theme-btn");
-  if (btn) btn.textContent = state.theme === "dark" ? "Soft" : "Dark";
+  if (btn) btn.textContent = state.theme === "dark" ? "Світла" : "Темна";
 }
 
 let clockInterval = null;
@@ -682,9 +682,9 @@ function renderMessagesList() {
 /* ———————————————— Tasks (kanban) ———————————————— */
 
 const STATUSES = [
-  { id: "Todo", label: "Todo" },
-  { id: "In_Progress", label: "In Progress" },
-  { id: "Done", label: "Done" },
+  { id: "Todo", label: "До виконання" },
+  { id: "In_Progress", label: "В роботі" },
+  { id: "Done", label: "Виконано" },
 ];
 
 function renderTasksPane() {
@@ -1112,13 +1112,13 @@ function renderUsersTable() {
             el("td", { class: "mono" }, u.email),
             el("td", {}, u.displayName),
             el("td", {}, el("span", { class: "sp-company-chip", "data-company": u.companyType }, u.companyType)),
-            el("td", {}, u.role === "admin" ? el("span", { class: "sp-badge", "data-kind": "admin" }, "admin") : "user"),
+            el("td", {}, u.role === "admin" ? el("span", { class: "sp-badge", "data-kind": "admin" }, "адмін") : "користувач"),
             el(
               "td",
               {},
               u.isActive
-                ? "active"
-                : el("span", { class: "sp-badge", "data-kind": "inactive" }, "inactive"),
+                ? "активний"
+                : el("span", { class: "sp-badge", "data-kind": "inactive" }, "неактивний"),
             ),
             el(
               "td",
@@ -1250,8 +1250,8 @@ function openUserDialog({ user }) {
       el(
         "select",
         { class: "sp-input", name: "role" },
-        el("option", { value: "user", selected: user?.role !== "admin" ? true : null }, "user"),
-        el("option", { value: "admin", selected: user?.role === "admin" ? true : null }, "admin"),
+        el("option", { value: "user", selected: user?.role !== "admin" ? true : null }, "Користувач"),
+        el("option", { value: "admin", selected: user?.role === "admin" ? true : null }, "Адміністратор"),
       ),
     ),
     isEdit
