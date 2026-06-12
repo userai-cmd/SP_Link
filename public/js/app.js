@@ -308,7 +308,7 @@ function renderSidebar() {
           closeSidebar();
         },
       },
-      `# ${ch.name}`,
+      ch.name,
     ),
   );
 
@@ -423,7 +423,7 @@ function renderTopbar() {
       el(
         "span",
         { class: "sat-top-name" },
-        state.view === "admin" ? "Адміністрування" : activeChannel ? `# ${activeChannel.name}` : "—",
+        state.view === "admin" ? "Адміністрування" : activeChannel ? activeChannel.name : "—",
       ),
     ),
     el(
@@ -545,7 +545,7 @@ function renderChatPane() {
   });
 
   const textarea = el("textarea", {
-    placeholder: activeChannel ? `Повідомлення у # ${activeChannel.name}` : "Повідомлення…",
+    placeholder: activeChannel ? `Повідомлення у «${activeChannel.name}»` : "Повідомлення…",
     rows: 1,
     onkeydown: (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -590,7 +590,7 @@ function renderChatPane() {
       el(
         "div",
         {},
-        el("h2", { class: "sp-pane-title" }, activeChannel ? `# ${activeChannel.name}` : "Чат"),
+        el("h2", { class: "sp-pane-title" }, activeChannel ? activeChannel.name : "Чат"),
         activeChannel?.description
           ? el("p", { class: "sp-pane-sub" }, activeChannel.description)
           : null,
