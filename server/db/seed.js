@@ -3,15 +3,17 @@ import { pool } from "./pool.js";
 import { migrate } from "./migrate.js";
 
 const DEFAULT_CHANNELS = [
-  { name: "general", description: "Загальні питання SAT та Postex" },
-  { name: "operations", description: "Операційні питання: відправлення, маршрути, склади" },
-  { name: "disputes", description: "Спірні питання та претензії" },
+  { name: "загальний", legacy: "general", description: "Загальні питання SAT та Postex" },
+  { name: "операції", legacy: "operations", description: "Операційні питання: відправлення, маршрути, склади" },
+  { name: "спірні-питання", legacy: "disputes", description: "Спірні питання та претензії" },
 ];
 
 export async function seed() {
   await migrate();
 
   for (const ch of DEFAULT_CHANNELS) {
+    // Rename channels created by an older seed (English names).
+    await pool.query("UPDATE channels SET name = $1 WHERE name = $2", [ch.name, ch.legacy]);
     await pool.query(
       `INSERT INTO channels (name, description)
        VALUES ($1, $2)

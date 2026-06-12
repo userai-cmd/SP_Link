@@ -1018,7 +1018,7 @@ function openChannelDialog() {
     el(
       "label",
       { class: "sp-field" },
-      el("span", {}, "Назва (латиницею, без #)"),
+      el("span", {}, "Назва (без #)"),
       el("input", { class: "sp-input", name: "name", required: true, maxlength: 60 }),
     ),
     el(
